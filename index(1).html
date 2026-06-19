@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viscoelastic Mayonnaise — Simulation Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:  #EEF1F5;
+    --card:   #FFFFFF;
+    --ink:    #15181F;
+    --muted:  #5C6573;
+    --line:   #D7DCE4;
+    --grid:   rgba(21, 24, 31, 0.045);
+    --accent: #2D43D8;
+    --accent-soft: rgba(45, 67, 216, 0.10);
+
+    --display: "Space Grotesk", system-ui, sans-serif;
+    --body:    "IBM Plex Sans", system-ui, sans-serif;
+    --mono:    "IBM Plex Mono", ui-monospace, monospace;
+
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--body);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0;
+    background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 8px; z-index: 100;
+  }
+  .skip:focus { left: 16px; top: 16px; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  header { padding: 72px 0 40px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+  }
+
+  .lede {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 64ch;
+    margin: 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-top: 28px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+  .meta span {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 13px;
+    color: var(--muted);
+  }
+  .meta span b { color: var(--ink); font-weight: 500; }
+
+  main { padding-bottom: 72px; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 10px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 26px;
+    margin-bottom: 48px;
+  }
+
+  figure.plate {
+    margin: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  figure.plate:hover,
+  figure.plate:focus-within {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 14px 34px -18px rgba(45, 67, 216, 0.45);
+  }
+
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      #F4F6FA;
+    background-size: 22px 22px;
+    border: 0;
+    cursor: zoom-in;
+    width: 100%;
+    padding: 0;
+    display: block;
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .media .zoom {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: rgba(255,255,255,0.86);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 3px 8px;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .media:hover .zoom,
+  .media:focus-visible .zoom { opacity: 1; }
+
+  .tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  figcaption { padding: 18px 20px 22px; }
+
+  .fig-no {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 0 0 7px;
+  }
+  .fig-title {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.18rem;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+  }
+  .fig-desc { font-size: 0.95rem; color: var(--muted); margin: 0 0 14px; }
+
+  .params {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .params b { color: var(--ink); font-weight: 500; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 34px 0 70px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(21, 24, 31, 0.86);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    z-index: 50;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 88vh;
+    border-radius: 10px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6);
+  }
+  .lightbox .close {
+    position: absolute;
+    top: 20px; right: 24px;
+    background: none; border: 0;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    padding: 8px 10px;
+  }
+  .lightbox .cap {
+    position: absolute;
+    bottom: 24px; left: 0; right: 0;
+    text-align: center;
+    color: #C9CEDA;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  @media (max-width: 560px) {
+    header { padding-top: 48px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<a href="#gallery" class="skip">Skip to gallery</a>
+
+<header class="wrap">
+  <p class="eyebrow">Frequency-domain viscoelastic FEM/FV · fractional Kelvin–Voigt</p>
+  <h1>Viscoelastic Mayonnaise — Simulation Gallery</h1>
+  <p class="lede">Steady harmonic shear and torsion of a fractional Kelvin–Voigt medium, G*(ω) = G + η<sub>α</sub>(iω)<sup>α</sup>. Each plate is one animated run; click any frame to view it full size.</p>
+
+  <div class="meta">
+    <span>constitutive <b>fractional KV</b></span>
+    <span>solver <b>frequency-domain</b></span>
+    <span>α <b>0.45</b></span>
+    <span>runs <b>6</b></span>
+    <span>updated <b>2026-06-19</b></span>
+  </div>
+</header>
+
+<main id="gallery" class="wrap">
+
+  <p class="section-label">Planar shear field</p>
+  <div class="grid">
+
+    <figure class="plate">
+      <button class="media" aria-label="Open shear-wave scattering animation full size">
+        <img src="gifs/wave_scattering.gif" alt="Fractional-KV shear wave scattering off a soft inclusion" loading="lazy">
+        <span class="tag">wave regime</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 01</p>
+        <h2 class="fig-title">Shear-wave scattering</h2>
+        <p class="fig-desc">Harmonic shear wave scattering off the soft inclusion in the wave regime.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>350</b>&nbsp;rad/s · grid&nbsp;<b>120×120</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open quasi-static warp animation full size">
+        <img src="gifs/quasistatic_warp.gif" alt="Quasi-static rheometric shear warp around the inclusion" loading="lazy">
+        <span class="tag">quasi-static</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 02</p>
+        <h2 class="fig-title">Quasi-static warp</h2>
+        <p class="fig-desc">Low-frequency rheometric regime — the field follows the drive almost in phase.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>10</b>&nbsp;rad/s · grid&nbsp;<b>90×90</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open 3D shear surface animation full size">
+        <img src="gifs/mayo_phys_wobble.gif" alt="3D surface view of the shear displacement field" loading="lazy">
+        <span class="tag">3D surface</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 03</p>
+        <h2 class="fig-title">Shear surface wobble</h2>
+        <p class="fig-desc">The same shear field lifted into a 3D displacement surface for the slide deck.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>150</b>&nbsp;rad/s · view&nbsp;<b>3D surface</b></p>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <p class="section-label">Cylindrical torsion</p>
+  <div class="grid">
+
+    <figure class="plate">
+      <button class="media" aria-label="Open baseline cylindrical torsion animation full size">
+        <img src="gifs/cylindrical_twist_solid.gif" alt="Solid 3D cylindrical torsional shear, baseline run" loading="lazy">
+        <span class="tag">baseline</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 04</p>
+        <h2 class="fig-title">Cylindrical torsion (baseline)</h2>
+        <p class="fig-desc">Solid 3D torsional shear of the meridian solver, twisting the outer shell.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>10</b>&nbsp;rad/s · mesh&nbsp;<b>NR60×NZ30</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open elastic torsion reference animation full size">
+        <img src="gifs/cyl_twist_elastic.gif" alt="Elastic cylindrical torsion, undamped standing oscillation" loading="lazy">
+        <span class="tag">η = 0</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 05</p>
+        <h2 class="fig-title">Torsion — elastic reference</h2>
+        <p class="fig-desc">Undamped limit: a standing torsional oscillation that fully straightens twice per cycle. No phase lag through the thickness.</p>
+        <p class="params">model&nbsp;<b>elastic</b> · ω&nbsp;=&nbsp;<b>300</b>&nbsp;rad/s · mesh&nbsp;<b>NR60×NZ40</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open fractional Kelvin-Voigt damped torsion animation full size">
+        <img src="gifs/cyl_twist_fkv.gif" alt="Fractional Kelvin-Voigt damped cylindrical torsion, lagging spiral" loading="lazy">
+        <span class="tag">damped</span>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 06</p>
+        <h2 class="fig-title">Torsion — fractional KV damped</h2>
+        <p class="fig-desc">Damping enters as Im G*: the twist crest lags through the thickness and the shell never fully straightens. Raise ω to make the travelling spiral more pronounced.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>300</b>&nbsp;rad/s · η&nbsp;=&nbsp;<b>120</b>&nbsp;Pa·sᵃ</p>
+      </figcaption>
+    </figure>
+
+  </div>
+</main>
+
+<footer class="wrap">
+  Fractional Kelvin–Voigt viscoelastic model · generated from <b>Numerical_Models.jl</b> +
+  <b>cyl_fractional_damping.jl</b> · source on
+  <a href="https://github.com/your-username/your-repo">GitHub</a>
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full-size figure">
+  <button class="close" id="lbClose">✕ close · esc</button>
+  <img id="lbImg" src="" alt="">
+  <p class="cap" id="lbCap"></p>
+</div>
+
+<script>
+  function placeholder(path) {
+    const name = (path || 'gifs/run.gif').split('/').pop();
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
+      <rect width="320" height="200" fill="#F4F6FA"/>
+      <g stroke="#D7DCE4" stroke-width="1">
+        ${Array.from({length:14},(_,i)=>`<line x1="${i*22}" y1="0" x2="${i*22}" y2="200"/>`).join('')}
+        ${Array.from({length:9},(_,i)=>`<line x1="0" y1="${i*22}" x2="320" y2="${i*22}"/>`).join('')}
+      </g>
+      <path d="M10 150 Q80 60 160 110 T310 70" fill="none" stroke="#2D43D8" stroke-width="2.5"/>
+      <text x="160" y="112" font-family="monospace" font-size="13" fill="#15181F" text-anchor="middle" font-weight="bold">awaiting render</text>
+      <text x="160" y="132" font-family="monospace" font-size="10" fill="#5C6573" text-anchor="middle" letter-spacing="1">drop ${name} here</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  document.querySelectorAll('.media img').forEach(img => {
+    const expected = img.getAttribute('src');
+    img.addEventListener('error', () => { img.src = placeholder(expected); }, { once: true });
+  });
+
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCap = document.getElementById('lbCap');
+  let lastFocus = null;
+
+  function openLB(btn) {
+    const img = btn.querySelector('img');
+    const title = btn.closest('figure').querySelector('.fig-title').textContent;
+    const no = btn.closest('figure').querySelector('.fig-no').textContent;
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    lbCap.textContent = no + ' — ' + title;
+    lb.classList.add('open');
+    lastFocus = btn;
+    document.getElementById('lbClose').focus();
+  }
+  function closeLB() {
+    lb.classList.remove('open');
+    lbImg.src = '';
+    if (lastFocus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.media').forEach(btn =>
+    btn.addEventListener('click', () => openLB(btn)));
+  document.getElementById('lbClose').addEventListener('click', closeLB);
+  lb.addEventListener('click', e => { if (e.target === lb) closeLB(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.classList.contains('open')) closeLB(); });
+</script>
+</body>
+</html>
