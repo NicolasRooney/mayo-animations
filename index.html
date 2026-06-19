@@ -227,7 +227,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open shear-wave scattering animation full size">
-        <video class="run" src="gifs/wave_scattering.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/wave_scattering.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -240,7 +240,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open quasi-static warp animation full size">
-        <video class="run" src="gifs/quasistatic_warp.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/quasistatic_warp.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -253,7 +253,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open 3D shear surface animation full size">
-        <video class="run" src="gifs/mayo_phys_wobble.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/mayo_phys_wobble.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -271,7 +271,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open baseline cylindrical torsion animation full size">
-        <video class="run" src="gifs/cylindrical_twist_solid.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cylindrical_twist_solid.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -284,7 +284,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open elastic torsion reference animation full size">
-        <video class="run" src="gifs/cyl_twist_elastic.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_elastic.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -297,7 +297,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open fractional Kelvin-Voigt damped torsion animation full size">
-        <video class="run" src="gifs/cyl_twist_fkv.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_fkv.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -315,7 +315,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open stretched-z baseline torsion animation full size">
-        <video class="run" src="gifs/cylindrical_twist_solid_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cylindrical_twist_solid_tall.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -328,7 +328,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open stretched-z elastic torsion animation full size">
-        <video class="run" src="gifs/cyl_twist_elastic_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_elastic_tall.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -341,7 +341,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open stretched-z fractional KV torsion animation full size">
-        <video class="run" src="gifs/cyl_twist_fkv_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_fkv_tall.mp4" autoplay muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -357,7 +357,7 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full-size figure">
   <button class="close" id="lbClose">✕ close · esc</button>
-  <video id="lbVid" loop muted playsinline controls style="display:none"></video>
+  <video id="lbVid" muted playsinline controls style="display:none"></video>
   <img id="lbImg" src="" alt="" style="display:none">
   <p class="cap" id="lbCap"></p>
 </div>
@@ -410,6 +410,7 @@
 
   const lb = document.getElementById('lightbox');
   const lbVid = document.getElementById('lbVid');
+  lbVid.addEventListener('ended', () => { lbVid.currentTime = 0; lbVid.play().catch(() => {}); });
   const lbImg = document.getElementById('lbImg');
   const lbCap = document.getElementById('lbCap');
   let lastFocus = null;
