@@ -227,7 +227,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open shear-wave scattering animation full size">
-        <video class="run" src="gifs/wave_scattering.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/wave_scattering.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -240,7 +240,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open quasi-static warp animation full size">
-        <video class="run" src="gifs/quasistatic_warp.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/quasistatic_warp.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -253,7 +253,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open 3D shear surface animation full size">
-        <video class="run" src="gifs/mayo_phys_wobble.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/mayo_phys_wobble.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -271,7 +271,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open baseline cylindrical torsion animation full size">
-        <video class="run" src="gifs/cylindrical_twist_solid.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cylindrical_twist_solid.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -284,7 +284,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open elastic torsion reference animation full size">
-        <video class="run" src="gifs/cyl_twist_elastic.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_elastic.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -297,7 +297,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open fractional Kelvin-Voigt damped torsion animation full size">
-        <video class="run" src="gifs/cyl_twist_fkv.mp4" loop muted playsinline preload="metadata"></video>
+        <video class="run" src="gifs/cyl_twist_fkv.mp4" autoplay loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -305,6 +305,50 @@
         <h2 class="fig-title">Torsion — fractional KV damped</h2>
         <p class="fig-desc">Damping enters as Im G*: the twist crest lags through the thickness and the shell never fully straightens. Raise ω to make the travelling spiral more pronounced.</p>
         <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>300</b>&nbsp;rad/s · η&nbsp;=&nbsp;<b>120</b>&nbsp;Pa·sᵃ</p>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <p class="section-label">Cylindrical torsion · stretched z</p>
+  <div class="grid">
+
+    <figure class="plate">
+      <button class="media" aria-label="Open stretched-z baseline torsion animation full size">
+        <video class="run" src="gifs/cylindrical_twist_solid_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 07</p>
+        <h2 class="fig-title">Cylindrical torsion (baseline) · tall</h2>
+        <p class="fig-desc">The baseline torsion run with the z-axis view stretched — same dimensions, taller-looking cylinder.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>10</b>&nbsp;rad/s · view&nbsp;<b>stretched z</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open stretched-z elastic torsion animation full size">
+        <video class="run" src="gifs/cyl_twist_elastic_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 08</p>
+        <h2 class="fig-title">Torsion — elastic · tall</h2>
+        <p class="fig-desc">Elastic reference, z-axis stretched. The standing twist and full straightening read more clearly on the taller shell.</p>
+        <p class="params">model&nbsp;<b>elastic</b> · ω&nbsp;=&nbsp;<b>300</b>&nbsp;rad/s · view&nbsp;<b>stretched z</b></p>
+      </figcaption>
+    </figure>
+
+    <figure class="plate">
+      <button class="media" aria-label="Open stretched-z fractional KV torsion animation full size">
+        <video class="run" src="gifs/cyl_twist_fkv_tall.mp4" autoplay loop muted playsinline preload="metadata"></video>
+        <span class="zoom">↗ view</span>
+      </button>
+      <figcaption>
+        <p class="fig-no">Fig. 09</p>
+        <h2 class="fig-title">Torsion — fractional KV damped · tall</h2>
+        <p class="fig-desc">Damped twist, z-axis stretched. The through-thickness phase lag is easier to spot over the longer column.</p>
+        <p class="params">model&nbsp;<b>FKV</b> · ω&nbsp;=&nbsp;<b>300</b>&nbsp;rad/s · view&nbsp;<b>stretched z</b></p>
       </figcaption>
     </figure>
 
@@ -337,14 +381,18 @@
   const vids = document.querySelectorAll('video.run');
 
   vids.forEach(v => {
+    let loaded = false;
+    v.addEventListener('loadeddata', () => { loaded = true; });
+    v.addEventListener('canplay', () => { loaded = true; });
+    v.addEventListener('ended', () => { v.currentTime = 0; v.play().catch(() => {}); });
     v.addEventListener('error', () => {
+      if (loaded) { try { v.play(); } catch (e) {} return; }
       const expected = v.getAttribute('src');
       const img = document.createElement('img');
       img.src = placeholder(expected);
       img.alt = '';
-      img.dataset.missing = expected;
       v.replaceWith(img);
-    }, { once: true });
+    });
   });
 
   if ('IntersectionObserver' in window) {
