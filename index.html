@@ -16,7 +16,6 @@
     --line:   #D7DCE4;
     --grid:   rgba(21, 24, 31, 0.045);
     --accent: #2D43D8;
-    --accent-soft: rgba(45, 67, 216, 0.10);
 
     --display: "Space Grotesk", system-ui, sans-serif;
     --body:    "IBM Plex Sans", system-ui, sans-serif;
@@ -48,16 +47,7 @@
 
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
-  header { padding: 72px 0 40px; }
-
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin: 0 0 18px;
-  }
+  header { padding: 64px 0 36px; }
 
   h1 {
     font-family: var(--display);
@@ -65,32 +55,8 @@
     font-size: clamp(2.2rem, 5.5vw, 3.6rem);
     line-height: 1.04;
     letter-spacing: -0.02em;
-    margin: 0 0 18px;
-  }
-
-  .lede {
-    font-size: 1.12rem;
-    color: var(--muted);
-    max-width: 64ch;
     margin: 0;
   }
-
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 10px;
-    margin-top: 28px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-  }
-  .meta span {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 5px 13px;
-    color: var(--muted);
-  }
-  .meta span b { color: var(--ink); font-weight: 500; }
 
   main { padding-bottom: 72px; }
 
@@ -143,11 +109,13 @@
     padding: 0;
     display: block;
   }
+  .media video,
   .media img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
+    pointer-events: none;
   }
   .media .zoom {
     position: absolute;
@@ -162,22 +130,10 @@
     padding: 3px 8px;
     opacity: 0;
     transition: opacity 0.18s ease;
+    pointer-events: none;
   }
   .media:hover .zoom,
   .media:focus-visible .zoom { opacity: 1; }
-
-  .tag {
-    position: absolute;
-    top: 10px; left: 10px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-soft);
-    border-radius: 6px;
-    padding: 3px 8px;
-  }
 
   figcaption { padding: 18px 20px 22px; }
 
@@ -207,16 +163,6 @@
   }
   .params b { color: var(--ink); font-weight: 500; }
 
-  footer {
-    border-top: 1px solid var(--line);
-    padding: 34px 0 70px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-
   .lightbox {
     position: fixed;
     inset: 0;
@@ -228,6 +174,7 @@
     z-index: 50;
   }
   .lightbox.open { display: flex; }
+  .lightbox video,
   .lightbox img {
     max-width: 100%;
     max-height: 88vh;
@@ -257,7 +204,7 @@
   :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
   @media (max-width: 560px) {
-    header { padding-top: 48px; }
+    header { padding-top: 44px; }
     .grid { grid-template-columns: 1fr; }
   }
 
@@ -270,17 +217,7 @@
 <a href="#gallery" class="skip">Skip to gallery</a>
 
 <header class="wrap">
-  <p class="eyebrow">Frequency-domain viscoelastic FEM/FV · fractional Kelvin–Voigt</p>
   <h1>Viscoelastic Mayonnaise — Simulation Gallery</h1>
-  <p class="lede">Steady harmonic shear and torsion of a fractional Kelvin–Voigt medium, G*(ω) = G + η<sub>α</sub>(iω)<sup>α</sup>. Each plate is one animated run; click any frame to view it full size.</p>
-
-  <div class="meta">
-    <span>constitutive <b>fractional KV</b></span>
-    <span>solver <b>frequency-domain</b></span>
-    <span>α <b>0.45</b></span>
-    <span>runs <b>6</b></span>
-    <span>updated <b>2026-06-19</b></span>
-  </div>
 </header>
 
 <main id="gallery" class="wrap">
@@ -290,8 +227,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open shear-wave scattering animation full size">
-        <img src="gifs/wave_scattering.gif" alt="Fractional-KV shear wave scattering off a soft inclusion" loading="lazy">
-        <span class="tag">wave regime</span>
+        <video class="run" src="gifs/wave_scattering.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -304,8 +240,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open quasi-static warp animation full size">
-        <img src="gifs/quasistatic_warp.gif" alt="Quasi-static rheometric shear warp around the inclusion" loading="lazy">
-        <span class="tag">quasi-static</span>
+        <video class="run" src="gifs/quasistatic_warp.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -318,8 +253,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open 3D shear surface animation full size">
-        <img src="gifs/mayo_phys_wobble.gif" alt="3D surface view of the shear displacement field" loading="lazy">
-        <span class="tag">3D surface</span>
+        <video class="run" src="gifs/mayo_phys_wobble.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -337,8 +271,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open baseline cylindrical torsion animation full size">
-        <img src="gifs/cylindrical_twist_solid.gif" alt="Solid 3D cylindrical torsional shear, baseline run" loading="lazy">
-        <span class="tag">baseline</span>
+        <video class="run" src="gifs/cylindrical_twist_solid.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -351,8 +284,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open elastic torsion reference animation full size">
-        <img src="gifs/cyl_twist_elastic.gif" alt="Elastic cylindrical torsion, undamped standing oscillation" loading="lazy">
-        <span class="tag">η = 0</span>
+        <video class="run" src="gifs/cyl_twist_elastic.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -365,8 +297,7 @@
 
     <figure class="plate">
       <button class="media" aria-label="Open fractional Kelvin-Voigt damped torsion animation full size">
-        <img src="gifs/cyl_twist_fkv.gif" alt="Fractional Kelvin-Voigt damped cylindrical torsion, lagging spiral" loading="lazy">
-        <span class="tag">damped</span>
+        <video class="run" src="gifs/cyl_twist_fkv.mp4" loop muted playsinline preload="metadata"></video>
         <span class="zoom">↗ view</span>
       </button>
       <figcaption>
@@ -380,21 +311,16 @@
   </div>
 </main>
 
-<footer class="wrap">
-  Fractional Kelvin–Voigt viscoelastic model · generated from <b>Numerical_Models.jl</b> +
-  <b>cyl_fractional_damping.jl</b> · source on
-  <a href="https://github.com/your-username/your-repo">GitHub</a>
-</footer>
-
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full-size figure">
   <button class="close" id="lbClose">✕ close · esc</button>
-  <img id="lbImg" src="" alt="">
+  <video id="lbVid" loop muted playsinline controls style="display:none"></video>
+  <img id="lbImg" src="" alt="" style="display:none">
   <p class="cap" id="lbCap"></p>
 </div>
 
 <script>
   function placeholder(path) {
-    const name = (path || 'gifs/run.gif').split('/').pop();
+    const name = (path || 'gifs/run.mp4').split('/').pop();
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
       <rect width="320" height="200" fill="#F4F6FA"/>
       <g stroke="#D7DCE4" stroke-width="1">
@@ -407,22 +333,53 @@
     </svg>`;
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
-  document.querySelectorAll('.media img').forEach(img => {
-    const expected = img.getAttribute('src');
-    img.addEventListener('error', () => { img.src = placeholder(expected); }, { once: true });
+
+  const vids = document.querySelectorAll('video.run');
+
+  vids.forEach(v => {
+    v.addEventListener('error', () => {
+      const expected = v.getAttribute('src');
+      const img = document.createElement('img');
+      img.src = placeholder(expected);
+      img.alt = '';
+      img.dataset.missing = expected;
+      v.replaceWith(img);
+    }, { once: true });
   });
 
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) { v.play().catch(() => {}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.2 });
+    vids.forEach(v => io.observe(v));
+  } else {
+    vids.forEach(v => v.play().catch(() => {}));
+  }
+
   const lb = document.getElementById('lightbox');
+  const lbVid = document.getElementById('lbVid');
   const lbImg = document.getElementById('lbImg');
   const lbCap = document.getElementById('lbCap');
   let lastFocus = null;
 
   function openLB(btn) {
-    const img = btn.querySelector('img');
+    const media = btn.querySelector('video, img');
     const title = btn.closest('figure').querySelector('.fig-title').textContent;
     const no = btn.closest('figure').querySelector('.fig-no').textContent;
-    lbImg.src = img.src;
-    lbImg.alt = img.alt;
+    if (media && media.tagName === 'VIDEO') {
+      lbVid.src = media.currentSrc || media.getAttribute('src');
+      lbVid.style.display = 'block';
+      lbImg.style.display = 'none';
+      lbVid.play().catch(() => {});
+    } else {
+      lbImg.src = media ? media.src : '';
+      lbImg.style.display = 'block';
+      lbVid.style.display = 'none';
+    }
     lbCap.textContent = no + ' — ' + title;
     lb.classList.add('open');
     lastFocus = btn;
@@ -430,6 +387,8 @@
   }
   function closeLB() {
     lb.classList.remove('open');
+    lbVid.pause();
+    lbVid.removeAttribute('src');
     lbImg.src = '';
     if (lastFocus) lastFocus.focus();
   }
