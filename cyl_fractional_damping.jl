@@ -6,63 +6,17 @@
 #  This file is `include`d AFTER Numerical_Models.jl, so it reuses the existing
 #  MayoParams, mp, Gstar_uniform, Gstar_model, solve_cyl_torsion and
 #  animate_cylindrical_twist_3d directly — no solver is re-implemented.
-# ----------------------------------------------------------------------------
-#  WHERE THE DAMPING LIVES  (read this before the code)
-#
-#  Time-domain FKV shear constitutive law:
-#       τ(t) = G γ(t) + η_α · D_t^α γ(t),      α ∈ (0,1),   [η_α] = Pa·s^α
-#  with D_t^α the Caputo fractional derivative.  Azimuthal momentum balance for
-#  the torsional displacement u(r,z,t) (engineering shears γ_{rφ}=∂_r u − u/r,
-#  γ_{zφ}=∂_z u):
-#       ρ ∂_tt u = (1/r²) ∂_r[ r² τ_{rφ} ] + ∂_z τ_{zφ},
-#       τ_{rφ} = (G + η_α D_t^α) γ_{rφ},   τ_{zφ} = (G + η_α D_t^α) γ_{zφ}.
-#
-#  Harmonic ansatz  u = Re{ U₀(r,z) e^{iωt} }.  The Caputo derivative of e^{iωt}
-#  carries the Fourier symbol  D_t^α → (iω)^α, so the bracket (G + η_α D_t^α)
-#  becomes a single complex modulus G*(ω) and ∂_tt → −ω²:
-#
-#       (1/r²) ∂_r[ r² G* (∂_r U₀ − U₀/r) ] + ∂_z(G* ∂_z U₀) + ρω² U₀ = 0,
-#
-#       G*(ω) = G + η_α (iω)^α
-#             = [ G + η_α ω^α cos(απ/2) ]  +  i [ η_α ω^α sin(απ/2) ]
-#             =          G'(ω)             +  i          G''(ω).
-#
-#  ⇒ This is EXACTLY the operator already in solve_cyl_torsion.  The viscous
-#    (dissipative) damping term is therefore NOT a new operator to bolt on — it
-#    is the imaginary part  G''(ω) = η_α ω^α sin(απ/2) > 0  of the SAME complex
-#    coefficient the solver already carries.  Setting η_α = 0 (elastic) makes G*
-#    real and removes all damping; η_α > 0 introduces:
-#       • a loss tangent   tanδ(ω) = G''/G' = η_α ω^α sin(απ/2)
-#                                            / [G + η_α ω^α cos(απ/2)],
-#       • a through-thickness phase lag (U₀ becomes complex), and
-#       • strictly positive per-cycle dissipation ∝ ω·Im(G*)·∫|γ̂|² dV.
-#
-#  EXACT REFERENCE USED FOR VERIFICATION.  For spatially uniform G*, the ansatz
-#  U₀(r,z) = r f(z) makes the radial shear γ_{rφ} = ∂_r U₀ − U₀/r ≡ 0
-#  identically (verified symbolically for both the continuous operator AND the
-#  discrete flux stencil, including the lateral r=R ghost fold), so the PDE
-#  collapses to the 1-D Helmholtz problem
-#       G* f''(z) + ρω² f(z) = 0,   f(0)=0,  f(h)=θ₀,
-#  whose closed form is
-#       f(z) = θ₀ sin(k* z)/sin(k* h),   k* = ω √(ρ/G*).
-#  The discrete solver reproduces  U₀(r,z) = r θ₀ sin(k* z)/sin(k* h)  with the
-#  radial direction resolved EXACTLY and only the O(Δz²) z-truncation remaining.
-#  Because k* is complex, this profile is complex — its z-dependent phase IS the
-#  fractional-KV damping.  In the static limit ω→0 it reduces to r θ₀ z/h.
 # ============================================================================
 
 
 """
     torsion_profile(p, w, Gs, zs; theta0=1e-3) -> Vector{ComplexF64}
-
-Through-thickness factor  f(z) = θ₀ sin(k* z)/sin(k* h),  k* = ω √(ρ/G*),
-for a uniform complex modulus `Gs`.  Reduces to θ₀ z/h as ω→0.
 """
 function torsion_profile(p::MayoParams, w::Real, Gs::Number, zs;
                          theta0::Real = 1e-3)
-    kstar = w * sqrt(p.rho / Gs)        # complex √ (principal branch), Re(k*)>0
+    kstar = w * sqrt(p.rho / Gs)
     kh    = kstar * p.H
-    if abs(kh) < 1e-8                    # static / quasi-static limit: sin→arg
+    if abs(kh) < 1e-8
         return ComplexF64.(theta0 .* zs ./ p.H)
     end
     return ComplexF64.(theta0 .* sin.(kstar .* zs) ./ sin(kh))
@@ -85,13 +39,7 @@ end
     verify_fractional_damping(; theta0=1e-3)
 
 Rigorous checks that the fractional-KV damping is correctly carried by the
-cylindrical torsion solver:
-
-  A. solver → separable analytic  r θ₀ sin(k* z)/sin(k* h)  at O(Δz²);
-  B. ω→0 static limit recovers the affine twist  r θ₀ z/h  (machine eps);
-  C. damping signatures: closed-form vs numeric loss tangent, a strictly
-     positive through-thickness phase lag and per-cycle dissipation for FKV,
-     both exactly zero in the elastic (η_α=0) limit.
+cylindrical torsion solver
 """
 function verify_fractional_damping(; theta0::Real = 1e-3)
     println("="^70)
@@ -147,14 +95,14 @@ function verify_fractional_damping(; theta0::Real = 1e-3)
     Ufk, _,  _  = solve_cyl_torsion(pc, wc; NR=NR, NZ=NZ, theta0=theta0,
                                     Gstar_field = (r,z,ww)->Gfk)
 
-    # through-thickness phase lag relative to the driven plate U₀(R,h)=Rθ₀ (real)
+    # through-thickness phase lag relative to the driven plate
     lag(U) = let e = U[end, :]
         rad2deg(maximum(abs.(angle.(e[2:end]) .- angle(e[end]))))
     end
     @printf("          through-thickness phase lag:  elastic %.4f°   FKV %.4f°\n",
             lag(Uel), lag(Ufk))
 
-    # per-cycle dissipation  ∝  ω · Im(G*) · ∫ |∂_z U₀|² (2π r dr dz)  ≥ 0
+    # per-cycle dissipation
     hz, hr = pc.H/NZ, pc.L/NR
     function dissip(U, G)
         dUz = (U[:, 2:end] .- U[:, 1:end-1]) ./ hz
@@ -183,20 +131,6 @@ end
 # ─── Damping sweep + 3-D graphic ─────────────────────────────────────────────
 """
     sweep_cyl_damping(p=mp; w=300.0, NR=60, NZ=40, theta0=1e-3, make_mp4s=true)
-
-Sweep the fractional-KV damping strength on the cylindrical torsion model and
-produce, at frequency `w`:
-
-  • cyl_damping_sweep.png  – |U₀(R,z)| and the through-thickness phase lag for
-                             η_α ∈ {0 (elastic), ½η, η, 2η};
-  • cyl_twist_elastic.mp4  – undamped reference (standing torsional oscillation);
-  • cyl_twist_fkv.mp4      – fractional-KV damped twist: the 3-D torsion graphic
-                             "like before, but with damping" — a lagging /
-                             travelling spiral whose lag is set by Im G*.
-
-Uses the existing solver and animate_cylindrical_twist_3d. The Gstar_field
-lambdas take the solver's frequency argument `ww`, so each modulus is evaluated
-consistently at the solve frequency.
 """
 function sweep_cyl_damping(p::MayoParams = mp; w::Real = 300.0,
                            NR::Int = 60, NZ::Int = 40, theta0::Real = 1e-3,
@@ -243,10 +177,10 @@ end
 
 Identical to `animate_cylindrical_twist_3d` but exaggerates the vertical (z)
 extent of the *view only*.  The Axis3 box aspect is set to (1, 1, `aspect_z`)
-instead of `:data`, so the short physical sample (R ≫ h) renders as a tall
-cylinder.  The z tick labels stay the true height in mm — only the drawn box is
+instead of `:data`, so the short physical sample renders as a tall cylinder.
+The z tick labels stay the true height in mm — only the drawn box is
 stretched, so the dimensions are unchanged.  `aspect_z` is the z box length
-relative to the x/y box (2.0 ≈ a cylinder ~2× taller than its diameter; raise
+relative to the x/y box (2.0 ≈ a cylinder ~2x taller than its diameter; raise
 it for more stretch).
 
 The mesh overlay is split so the static horizontal rings don't distract: the
@@ -323,16 +257,9 @@ end
     render_cyl_tall(p=mp; w_torsion=10.0, w_damp=300.0, NR=60, NZ=40,
                     theta0=1e-3, aspect_z=2.5)
 
-Supplemental set: re-renders the three cylinder animations with a stretched-z
-view (same physics and dimensions as the originals, only a taller-looking box):
-
-  • cylindrical_twist_solid_tall.mp4  – baseline torsion (mirrors main()'s run);
+  • cylindrical_twist_solid_tall.mp4  – baseline torsion;
   • cyl_twist_elastic_tall.mp4        – elastic reference;
   • cyl_twist_fkv_tall.mp4            – fractional-KV damped.
-
-Add `render_cyl_tall()` after `sweep_cyl_damping()` at the bottom of the script.
-To emit MP4s directly instead of mp4s, change the `.mp4` extensions below to
-`.mp4` (Makie picks the format from the extension).
 """
 function render_cyl_tall(p::MayoParams = mp; w_torsion::Real = 10.0,
                          w_damp::Real = 300.0, NR::Int = 60, NZ::Int = 40,
